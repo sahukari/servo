@@ -112,6 +112,9 @@ pub struct Fragment {
     pub restyle_damage: RestyleDamage,
 }
 
+unsafe impl Send for Fragment {}
+unsafe impl Sync for Fragment {}
+
 impl Encodable for Fragment {
     fn encode<S: Encoder>(&self, e: &mut S) -> Result<(), S::Error> {
         e.emit_struct("fragment", 0, |e| {

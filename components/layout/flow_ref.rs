@@ -20,6 +20,9 @@ pub struct FlowRef {
     object: raw::TraitObject,
 }
 
+unsafe impl Send for FlowRef {}
+unsafe impl Sync for FlowRef {}
+
 impl FlowRef {
     pub fn new(mut flow: Box<Flow>) -> FlowRef {
         unsafe {

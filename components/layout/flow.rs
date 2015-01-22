@@ -67,7 +67,7 @@ use std::sync::Arc;
 ///
 /// Note that virtual methods have a cost; we should not overuse them in Servo. Consider adding
 /// methods to `ImmutableFlowUtils` or `MutableFlowUtils` before adding more methods here.
-pub trait Flow: fmt::Show + ToString + Sync {
+pub trait Flow: fmt::Show + Sync {
     // RTTI
     //
     // TODO(pcwalton): Use Rust's RTTI, once that works.
@@ -777,6 +777,9 @@ pub struct BaseFlow {
     pub flags: FlowFlags,
 }
 
+unsafe impl Send for BaseFlow {}
+unsafe impl Sync for BaseFlow {}
+
 impl fmt::Show for BaseFlow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
@@ -1126,7 +1129,7 @@ impl<'a> ImmutableFlowUtils for &'a (Flow + 'a) {
             indent.push_str("| ")
         }
 
-        println!("{}+ {}", indent, self.to_string());
+        println!("{}+ {:?}", indent, self);
 
         for kid in imm_child_iter(self) {
             kid.dump_with_level(level + 1)
