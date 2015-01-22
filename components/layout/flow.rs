@@ -205,10 +205,10 @@ pub trait Flow: fmt::Show + Sync {
     fn assign_block_size_for_inorder_child_if_necessary<'a>(&mut self,
                                                             layout_context: &'a LayoutContext<'a>)
                                                             -> bool {
-        let impacted = base(&*self).flags.impacted_by_floats();
+        let impacted = unsafe { base(mem::transmute(self)).flags.impacted_by_floats() };
         if impacted {
             self.assign_block_size(layout_context);
-            mut_base(&mut *self).restyle_damage.remove(REFLOW_OUT_OF_FLOW | REFLOW);
+            mut_base(mem::transmute(self)).restyle_damage.remove(REFLOW_OUT_OF_FLOW | REFLOW);
         }
         impacted
     }
@@ -259,7 +259,9 @@ pub trait Flow: fmt::Show + Sync {
     }
 
     fn is_positioned(&self) -> bool {
-        self.is_relatively_positioned() || base(self).flags.contains(IS_ABSOLUTELY_POSITIONED)
+        unsafe {
+            self.is_relatively_positioned() || base(mem::transmute(self)).flags.contains(IS_ABSOLUTELY_POSITIONED)
+        }
     }
 
     fn is_relatively_positioned(&self) -> bool {
