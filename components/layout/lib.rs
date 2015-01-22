@@ -19,6 +19,7 @@ extern crate gfx;
 extern crate layout_traits;
 extern crate script;
 extern crate script_traits;
+extern crate "serialize" as rustc_serialize;
 extern crate serialize;
 extern crate png;
 extern crate style;

@@ -31,6 +31,8 @@ use servo_util::range::{Range, RangeIndex};
 use std::cmp::max;
 use std::fmt;
 use std::mem;
+use std::num::ToPrimitive;
+use std::ops::{Add, Sub, Mul, Div, Rem, Neg, Shl, Shr, Not, BitOr, BitAnd, BitXor};
 use std::u16;
 use style::computed_values::{text_align, vertical_align, white_space};
 use style::ComputedValues;
@@ -65,7 +67,7 @@ static FONT_SUPERSCRIPT_OFFSET_RATIO: f64 = 0.34;
 /// with a float or a horizontal wall of the containing block. The block-start
 /// inline-start corner of the green zone is the same as that of the line, but
 /// the green zone can be taller and wider than the line itself.
-#[derive(Encodable, Show, Copy)]
+#[derive(RustcEncodable, Show, Copy)]
 pub struct Line {
     /// A range of line indices that describe line breaks.
     ///
@@ -150,7 +152,7 @@ pub struct Line {
 }
 
 int_range_index! {
-    #[derive(Encodable)]
+    #[derive(RustcEncodable)]
     #[doc = "The index of a fragment in a flattened vector of DOM elements."]
     struct FragmentIndex(int)
 }
@@ -256,7 +258,7 @@ impl LineBreaker {
                               mut old_fragment_iter: I,
                               flow: &'a InlineFlow,
                               layout_context: &LayoutContext)
-                              where I: Iterator<Fragment> {
+                              where I: Iterator<Item=Fragment> {
         loop {
             // Acquire the next fragment to lay out from the work list or fragment list, as
             // appropriate.
@@ -305,7 +307,7 @@ impl LineBreaker {
     /// Note that you probably don't want to call this method directly in order to be
     /// incremental-reflow-safe; try `next_unbroken_fragment` instead.
     fn next_fragment<I>(&mut self, old_fragment_iter: &mut I) -> Option<Fragment>
-                        where I: Iterator<Fragment> {
+                        where I: Iterator<Item=Fragment> {
         if self.work_list.is_empty() {
             return match old_fragment_iter.next() {
                 None => None,
@@ -325,7 +327,7 @@ impl LineBreaker {
     /// fragment to lay out, undoing line break operations that any previous reflows may have
     /// performed. You probably want to be using this method instead of `next_fragment`.
     fn next_unbroken_fragment<I>(&mut self, old_fragment_iter: &mut I) -> Option<Fragment>
-                                 where I: Iterator<Fragment> {
+                                 where I: Iterator<Item=Fragment> {
         let mut result = match self.next_fragment(old_fragment_iter) {
             None => return None,
             Some(fragment) => fragment,
@@ -657,7 +659,7 @@ impl LineBreaker {
 }
 
 /// Represents a list of inline fragments, including element ranges.
-#[derive(Encodable, Clone)]
+#[derive(RustcEncodable, Clone)]
 pub struct InlineFragments {
     /// The fragments themselves.
     pub fragments: Vec<Fragment>,
@@ -711,7 +713,7 @@ impl InlineFragments {
 }
 
 /// Flows for inline layout.
-#[derive(Encodable)]
+#[derive(RustcEncodable)]
 pub struct InlineFlow {
     /// Data common to all flows.
     pub base: BaseFlow,

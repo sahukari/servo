@@ -45,7 +45,7 @@ use servo_util::logical_geometry::{LogicalPoint, LogicalRect, LogicalSize};
 use servo_util::opts;
 use std::default::Default;
 use std::iter::repeat;
-use std::num::FloatMath;
+use std::num::Float;
 use style::values::specified::{AngleOrCorner, HorizontalDirection, VerticalDirection};
 use style::computed::{Image, LinearGradient, LengthOrPercentage};
 use style::computed_values::filter::Filter;
@@ -54,6 +54,7 @@ use style::computed_values::{position, visibility};
 use style::style_structs::Border;
 use style::{ComputedValues, RGBA};
 use std::sync::Arc;
+use std::sync::mpsc::channel;
 use url::Url;
 
 /// The results of display list building for a single flow.

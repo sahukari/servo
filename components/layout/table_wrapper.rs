@@ -27,18 +27,19 @@ use geom::{Point2D, Rect};
 use servo_util::geometry::Au;
 use std::cmp::{max, min};
 use std::fmt;
+use std::ops::Add;
 use style::{ComputedValues, CSSFloat};
 use style::computed_values::{table_layout, LengthOrPercentageOrAuto};
 use std::sync::Arc;
 
-#[derive(Copy, Encodable, Show)]
+#[derive(Copy, RustcEncodable, Show)]
 pub enum TableLayout {
     Fixed,
     Auto
 }
 
 /// A table wrapper flow based on a block formatting context.
-#[derive(Encodable)]
+#[derive(RustcEncodable)]
 pub struct TableWrapperFlow {
     pub block_flow: BlockFlow,
 
@@ -482,9 +483,9 @@ impl AutoLayoutCandidateGuess {
     }
 }
 
-impl Add<AutoLayoutCandidateGuess,AutoLayoutCandidateGuess> for AutoLayoutCandidateGuess {
+impl Add for AutoLayoutCandidateGuess {
     #[inline]
-    fn add(&self, other: &AutoLayoutCandidateGuess) -> AutoLayoutCandidateGuess {
+    fn add(self, other: AutoLayoutCandidateGuess) -> AutoLayoutCandidateGuess {
         AutoLayoutCandidateGuess {
             minimum_guess: self.minimum_guess + other.minimum_guess,
             minimum_percentage_guess:

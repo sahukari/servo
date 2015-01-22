@@ -16,8 +16,8 @@ use servo_util::smallvec::{SmallVec, SmallVec16};
 use servo_util::arc_ptr_eq;
 use std::borrow::ToOwned;
 use std::mem;
-use std::hash::{Hash, sip};
-use std::slice::Items;
+use std::hash::{Hash, Hasher, sip};
+use std::slice::Iter;
 use string_cache::{Atom, Namespace};
 use style::{mod, PseudoElement, ComputedValues, DeclarationBlock, Stylist, TElement, TNode};
 use style::{CommonStyleAffectingAttributeMode, CommonStyleAffectingAttributes, cascade};
@@ -63,15 +63,15 @@ impl ApplicableDeclarationsCacheEntry {
     }
 }
 
-impl PartialEq for ApplicableDeclarationsCacheEntry {
+/*impl PartialEq for ApplicableDeclarationsCacheEntry {
     fn eq(&self, other: &ApplicableDeclarationsCacheEntry) -> bool {
         let this_as_query = ApplicableDeclarationsCacheQuery::new(self.declarations.as_slice());
         this_as_query.equiv(other)
     }
-}
+}*/
 
-impl Hash for ApplicableDeclarationsCacheEntry {
-    fn hash(&self, state: &mut sip::SipState) {
+impl<H: Hasher> Hash<H> for ApplicableDeclarationsCacheEntry {
+    fn hash(&self, state: &mut H) {
         let tmp = ApplicableDeclarationsCacheQuery::new(self.declarations.as_slice());
         tmp.hash(state);
     }
@@ -89,7 +89,7 @@ impl<'a> ApplicableDeclarationsCacheQuery<'a> {
     }
 }
 
-impl<'a> Equiv<ApplicableDeclarationsCacheEntry> for ApplicableDeclarationsCacheQuery<'a> {
+/*impl<'a> Equiv<ApplicableDeclarationsCacheEntry> for ApplicableDeclarationsCacheQuery<'a> {
     fn equiv(&self, other: &ApplicableDeclarationsCacheEntry) -> bool {
         if self.declarations.len() != other.declarations.len() {
             return false
@@ -101,11 +101,11 @@ impl<'a> Equiv<ApplicableDeclarationsCacheEntry> for ApplicableDeclarationsCache
         }
         return true
     }
-}
+}*/
 
 
-impl<'a> Hash for ApplicableDeclarationsCacheQuery<'a> {
-    fn hash(&self, state: &mut sip::SipState) {
+impl<'a, H: Hasher> Hash<H> for ApplicableDeclarationsCacheQuery<'a> {
+    fn hash(&self, state: &mut H) {
         for declaration in self.declarations.iter() {
             let ptr: uint = unsafe {
                 mem::transmute_copy(declaration)
@@ -321,7 +321,7 @@ impl StyleSharingCandidateCache {
         }
     }
 
-    pub fn iter<'a>(&'a self) -> Items<'a,(StyleSharingCandidate,())> {
+    pub fn iter<'a>(&'a self) -> Iter<'a,(StyleSharingCandidate,())> {
         self.cache.iter()
     }
 

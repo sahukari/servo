@@ -61,6 +61,7 @@ use servo_util::time::{TimerMetadataFrameType, TimerMetadataReflowType, profile}
 use servo_util::workqueue::WorkQueue;
 use std::borrow::ToOwned;
 use std::cell::Cell;
+use std::ops::{Deref, DerefMut};
 use std::sync::mpsc::{channel, Sender, Receiver, Select};
 use std::mem;
 use std::ptr;
@@ -217,7 +218,8 @@ enum RWGuard<'a> {
     Used(MutexGuard<'a, LayoutTaskData>),
 }
 
-impl<'a> Deref<LayoutTaskData> for RWGuard<'a> {
+impl<'a> Deref for RWGuard<'a> {
+    type Target = LayoutTaskData;
     fn deref(&self) -> &LayoutTaskData {
         match *self {
             RWGuard::Held(ref x) => &**x,
@@ -226,7 +228,7 @@ impl<'a> Deref<LayoutTaskData> for RWGuard<'a> {
     }
 }
 
-impl<'a> DerefMut<LayoutTaskData> for RWGuard<'a> {
+impl<'a> DerefMut for RWGuard<'a> {
     fn deref_mut(&mut self) -> &mut LayoutTaskData {
         match *self {
             RWGuard::Held(ref mut x) => &mut **x,

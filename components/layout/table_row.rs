@@ -27,7 +27,7 @@ use style::computed_values::LengthOrPercentageOrAuto;
 use std::sync::Arc;
 
 /// A single row of a table.
-#[derive(Encodable)]
+#[derive(RustcEncodable)]
 pub struct TableRowFlow {
     pub block_flow: BlockFlow,
 
@@ -39,7 +39,7 @@ pub struct TableRowFlow {
 }
 
 /// Information about the column inline size and span for each cell.
-#[derive(Encodable, Copy)]
+#[derive(RustcEncodable, Copy)]
 pub struct CellIntrinsicInlineSize {
     /// Inline sizes that this cell contributes to the column.
     pub column_size: ColumnIntrinsicInlineSize,

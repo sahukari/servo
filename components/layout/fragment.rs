@@ -41,6 +41,7 @@ use std::cmp::{max, min};
 use std::fmt;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::Sender;
 use string_cache::Atom;
 use style::{ComputedValues, TElement, TNode, cascade_anonymous};
 use style::computed_values::{LengthOrPercentage, LengthOrPercentageOrAuto};
@@ -111,8 +112,8 @@ pub struct Fragment {
     pub restyle_damage: RestyleDamage,
 }
 
-impl<E, S: Encoder<E>> Encodable<S, E> for Fragment {
-    fn encode(&self, e: &mut S) -> Result<(), E> {
+impl Encodable for Fragment {
+    fn encode<S: Encoder>(&self, e: &mut S) -> Result<(), S::Error> {
         e.emit_struct("fragment", 0, |e| {
             try!(e.emit_struct_field("id", 0, |e| self.debug_id().encode(e)));
             try!(e.emit_struct_field("border_box", 1, |e| self.border_box.encode(e)));
@@ -1355,7 +1356,7 @@ impl Fragment {
                                                               max_inline_size: Au,
                                                               flags: SplitOptions)
                                                               -> Option<SplitResult>
-                                                              where I: Iterator<TextRunSlice<'a>> {
+                                                              where I: Iterator<Item=TextRunSlice<'a>> {
         let text_fragment_info =
             if let SpecificFragmentInfo::ScannedText(ref text_fragment_info) = self.specific {
                 text_fragment_info

@@ -55,9 +55,10 @@ use servo_util::logical_geometry::{LogicalRect, LogicalSize, WritingMode};
 use std::mem;
 use std::fmt;
 use std::iter::Zip;
+use std::num::FromPrimitive;
 use std::raw;
 use std::sync::atomic::{AtomicUint, Ordering};
-use std::slice::MutItems;
+use std::slice::IterMut;
 use style::computed_values::{clear, empty_cells, float, position, text_align};
 use style::ComputedValues;
 use std::sync::Arc;
@@ -423,7 +424,7 @@ pub trait MutableOwnedFlowUtils {
     fn set_absolute_descendants(&mut self, abs_descendants: AbsDescendants);
 }
 
-#[derive(Encodable, PartialEq, Show)]
+#[derive(RustcEncodable, PartialEq, Show)]
 pub enum FlowClass {
     Block,
     Inline,
@@ -465,7 +466,6 @@ pub trait PostorderFlowTraversal {
 
 bitflags! {
     #[doc = "Flags used in flows."]
-    #[derive(Copy)]
     flags FlowFlags: u16 {
         // floated descendants flags
         #[doc = "Whether this flow has descendants that float left in the same block formatting"]
@@ -650,20 +650,21 @@ impl Descendants {
 pub type AbsDescendants = Descendants;
 
 pub struct DescendantIter<'a> {
-    iter: MutItems<'a, FlowRef>,
+    iter: IterMut<'a, FlowRef>,
 }
 
-impl<'a> Iterator<&'a mut (Flow + 'a)> for DescendantIter<'a> {
+impl<'a> Iterator for DescendantIter<'a> {
+    type Item = &'a mut (Flow + 'a);
     fn next(&mut self) -> Option<&'a mut (Flow + 'a)> {
         self.iter.next().map(|flow| &mut **flow)
     }
 }
 
-pub type DescendantOffsetIter<'a> = Zip<DescendantIter<'a>, MutItems<'a, Au>>;
+pub type DescendantOffsetIter<'a> = Zip<DescendantIter<'a>, IterMut<'a, Au>>;
 
 /// Information needed to compute absolute (i.e. viewport-relative) flow positions (not to be
 /// confused with absolutely-positioned flows).
-#[derive(Encodable, Copy)]
+#[derive(RustcEncodable, Copy)]
 pub struct AbsolutePositionInfo {
     /// The size of the containing block for relatively-positioned descendants.
     pub relative_containing_block_size: LogicalSize<Au>,
@@ -786,8 +787,8 @@ impl fmt::Show for BaseFlow {
     }
 }
 
-impl<E, S: Encoder<E>> Encodable<S, E> for BaseFlow {
-    fn encode(&self, e: &mut S) -> Result<(), E> {
+impl Encodable for BaseFlow {
+    fn encode<S: Encoder>(&self, e: &mut S) -> Result<(), S::Error> {
         e.emit_struct("base", 0, |e| {
             try!(e.emit_struct_field("id", 0, |e| self.debug_id().encode(e)));
             try!(e.emit_struct_field("stacking_relative_position",

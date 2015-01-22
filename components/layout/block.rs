@@ -366,7 +366,8 @@ impl CandidateBSizeIterator {
     }
 }
 
-impl Iterator<MaybeAuto> for CandidateBSizeIterator {
+impl Iterator for CandidateBSizeIterator {
+    type Item = MaybeAuto;
     fn next(&mut self) -> Option<MaybeAuto> {
         self.status = match self.status {
             CandidateBSizeIteratorStatus::Initial => CandidateBSizeIteratorStatus::Trying,
@@ -525,7 +526,7 @@ fn propagate_layer_flag_from_child(layers_needed_for_descendants: &mut bool, kid
 }
 
 // A block formatting context.
-#[derive(Encodable)]
+#[derive(RustcEncodable)]
 pub struct BlockFlow {
     /// Data common to all flows.
     pub base: BaseFlow,
@@ -561,8 +562,8 @@ bitflags! {
     }
 }
 
-impl<'a,E,S> Encodable<S,E> for BlockFlowFlags where S: Encoder<E> {
-    fn encode(&self, e: &mut S) -> Result<(),E> {
+impl Encodable for BlockFlowFlags {
+    fn encode<S: Encoder>(&self, e: &mut S) -> Result<(), S::Error> {
         self.bits().encode(e)
     }
 }

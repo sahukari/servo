@@ -12,7 +12,7 @@ use std::fmt;
 use style::computed_values::float;
 
 /// The kind of float: left or right.
-#[derive(Clone, Encodable, Show, Copy)]
+#[derive(Clone, RustcEncodable, Show, Copy)]
 pub enum FloatKind {
     Left,
     Right

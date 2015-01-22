@@ -58,8 +58,9 @@ use script::dom::text::Text;
 use script::layout_interface::LayoutChan;
 use servo_msg::constellation_msg::{PipelineId, SubpageId};
 use servo_util::str::{LengthOrPercentageOrAuto, is_whitespace};
-use std::kinds::marker::ContravariantLifetime;
+use std::marker::ContravariantLifetime;
 use std::mem;
+use std::sync::mpsc::Sender;
 use string_cache::{Atom, Namespace};
 use style::computed_values::{content, display, white_space};
 use style::{NamespaceConstraint, AttrSelector, IntegerAttribute};
@@ -450,7 +451,8 @@ pub struct LayoutNodeChildrenIterator<'a> {
     current: Option<LayoutNode<'a>>,
 }
 
-impl<'a> Iterator<LayoutNode<'a>> for LayoutNodeChildrenIterator<'a> {
+impl<'a> Iterator for LayoutNodeChildrenIterator<'a> {
+    type Item = LayoutNode<'a>;
     fn next(&mut self) -> Option<LayoutNode<'a>> {
         let node = self.current;
         self.current = node.and_then(|node| node.next_sibling());
@@ -462,7 +464,8 @@ pub struct LayoutNodeReverseChildrenIterator<'a> {
     current: Option<LayoutNode<'a>>,
 }
 
-impl<'a> Iterator<LayoutNode<'a>> for LayoutNodeReverseChildrenIterator<'a> {
+impl<'a> Iterator for LayoutNodeReverseChildrenIterator<'a> {
+    type Item = LayoutNode<'a>;
     fn next(&mut self) -> Option<LayoutNode<'a>> {
         let node = self.current;
         self.current = node.and_then(|node| node.prev_sibling());
@@ -484,7 +487,8 @@ impl<'a> LayoutTreeIterator<'a> {
     }
 }
 
-impl<'a> Iterator<LayoutNode<'a>> for LayoutTreeIterator<'a> {
+impl<'a> Iterator for LayoutTreeIterator<'a> {
+    type Item = LayoutNode<'a>;
     fn next(&mut self) -> Option<LayoutNode<'a>> {
         let ret = self.stack.pop();
         ret.map(|node| self.stack.extend(node.rev_children()));
@@ -1035,7 +1039,8 @@ pub struct ThreadSafeLayoutNodeChildrenIterator<'a> {
     parent_node: Option<ThreadSafeLayoutNode<'a>>,
 }
 
-impl<'a> Iterator<ThreadSafeLayoutNode<'a>> for ThreadSafeLayoutNodeChildrenIterator<'a> {
+impl<'a> Iterator for ThreadSafeLayoutNodeChildrenIterator<'a> {
+    type Item = ThreadSafeLayoutNode<'a>;
     fn next(&mut self) -> Option<ThreadSafeLayoutNode<'a>> {
         let node = self.current_node.clone();
 

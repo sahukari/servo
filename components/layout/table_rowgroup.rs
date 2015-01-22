@@ -22,7 +22,7 @@ use style::ComputedValues;
 use std::sync::Arc;
 
 /// A table formatting context.
-#[derive(Encodable)]
+#[derive(RustcEncodable)]
 pub struct TableRowGroupFlow {
     /// Fields common to all block flows.
     pub block_flow: BlockFlow,
