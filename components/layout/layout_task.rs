@@ -157,7 +157,7 @@ impl ImageResponder<UntrustedNodeAddress> for LayoutImageResponder {
     fn respond(&self) -> Box<Fn(ImageResponseMsg, UntrustedNodeAddress)+Send> {
         let id = self.id.clone();
         let script_chan = self.script_chan.clone();
-        box |:_, node_address| {
+        box move |&:_, node_address| {
             let ScriptControlChan(chan) = script_chan;
             debug!("Dirtying {:x}", node_address.0 as uint);
             let mut nodes = SmallVec1::new();

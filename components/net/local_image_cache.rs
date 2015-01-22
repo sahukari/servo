@@ -128,7 +128,7 @@ impl<NodeAddress: Send> LocalImageCache<NodeAddress> {
                 // on the image to load and triggering layout
                 let image_cache_task = self.image_cache_task.clone();
                 assert!(self.on_image_available.is_some());
-                let on_image_available = box
+                let on_image_available =
                     self.on_image_available.as_ref().unwrap().respond();
                 let url = (*url).clone();
                 spawn_named("LocalImageCache".to_owned(), move || {

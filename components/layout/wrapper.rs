@@ -223,7 +223,7 @@ impl<'ln> TLayoutNode for LayoutNode<'ln> {
             }
             let area: Option<JS<HTMLTextAreaElement>> = HTMLTextAreaElementCast::to_js(self.get_jsmanaged());
             if let Some(area) = area {
-                area.get_value_for_layout()
+                return area.get_value_for_layout();
             }
 
             panic!("not text!")
@@ -961,7 +961,8 @@ impl<'ln> ThreadSafeLayoutNode<'ln> {
 
     pub fn get_input_value(&self) -> String {
         unsafe {
-            match HTMLInputElementCast::to_js(self.get_jsmanaged()) {
+            let input: Option<JS<HTMLInputElement>> = HTMLInputElementCast::to_js(self.get_jsmanaged());
+            match input {
                 Some(input) => input.get_value_for_layout(),
                 None => panic!("not an input element!")
             }
