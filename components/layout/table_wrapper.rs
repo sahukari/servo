@@ -384,9 +384,9 @@ impl Flow for TableWrapperFlow {
 impl fmt::Show for TableWrapperFlow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if self.block_flow.base.flags.is_float() {
-            write!(f, "TableWrapperFlow(Float): {}", self.block_flow.fragment)
+            write!(f, "TableWrapperFlow(Float): {:?}", self.block_flow.fragment)
         } else {
-            write!(f, "TableWrapperFlow: {}", self.block_flow.fragment)
+            write!(f, "TableWrapperFlow: {:?}", self.block_flow.fragment)
         }
     }
 }
@@ -484,6 +484,7 @@ impl AutoLayoutCandidateGuess {
 }
 
 impl Add for AutoLayoutCandidateGuess {
+    type Output = AutoLayoutCandidateGuess;
     #[inline]
     fn add(self, other: AutoLayoutCandidateGuess) -> AutoLayoutCandidateGuess {
         AutoLayoutCandidateGuess {

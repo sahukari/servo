@@ -312,13 +312,13 @@ impl LineBreaker {
             return match old_fragment_iter.next() {
                 None => None,
                 Some(fragment) => {
-                    debug!("LineBreaker: working with fragment from flow: {}", fragment);
+                    debug!("LineBreaker: working with fragment from flow: {:?}", fragment);
                     Some(fragment)
                 }
             }
         }
 
-        debug!("LineBreaker: working with fragment from work list: {}", self.work_list.front());
+        debug!("LineBreaker: working with fragment from work list: {:?}", self.work_list.front());
         self.work_list.pop_front()
     }
 
@@ -344,7 +344,7 @@ impl LineBreaker {
             };
 
             let need_to_merge = match (&mut result.specific, &candidate.specific) {
-                (&SpecificFragmentInfo::ScannedText(ref mut result_info),
+                (&mut SpecificFragmentInfo::ScannedText(ref mut result_info),
                  &SpecificFragmentInfo::ScannedText(ref candidate_info))
                     if arc_ptr_eq(&result_info.run, &candidate_info.run) &&
                         result_info.range.end() + CharIndex(1) == candidate_info.range.begin() => {
@@ -364,7 +364,7 @@ impl LineBreaker {
 
     /// Commits a line to the list.
     fn flush_current_line(&mut self) {
-        debug!("LineBreaker: flushing line {}: {}", self.lines.len(), self.pending_line);
+        debug!("LineBreaker: flushing line {}: {:?}", self.lines.len(), self.pending_line);
         self.lines.push(self.pending_line);
         self.cur_b = self.pending_line.bounds.start.b + self.pending_line.bounds.size.block;
         self.reset_line();
@@ -390,7 +390,7 @@ impl LineBreaker {
                               first_fragment: &Fragment,
                               ceiling: Au)
                               -> (LogicalRect<Au>, Au) {
-        debug!("LineBreaker: trying to place first fragment of line {}; fragment size: {}, \
+        debug!("LineBreaker: trying to place first fragment of line {}; fragment size: {:?}, \
                 splittable: {}",
                self.lines.len(),
                first_fragment.border_box.size,
@@ -498,7 +498,7 @@ impl LineBreaker {
                        .expect("LineBreaker: this split case makes no sense!");
         let writing_mode = self.floats.writing_mode;
 
-        let split_fragment = |split: SplitInfo| {
+        let split_fragment = |&:split: SplitInfo| {
             let info = box ScannedTextFragmentInfo::new(run.clone(),
                                                         split.range,
                                                         (*in_fragment.newline_positions()
@@ -543,7 +543,7 @@ impl LineBreaker {
             self.pending_line.green_zone = line_bounds.size;
         }
 
-        debug!("LineBreaker: trying to append to line {} (fragment size: {}, green zone: {}): {}",
+        debug!("LineBreaker: trying to append to line {} (fragment size: {:?}, green zone: {:?}): {:?}",
                self.lines.len(),
                fragment.border_box.size,
                self.pending_line.green_zone,
@@ -588,13 +588,13 @@ impl LineBreaker {
             match fragment.calculate_split_position(available_inline_size,
                                                     self.pending_line_is_empty()) {
                 None => {
-                    debug!("LineBreaker: fragment was unsplittable; deferring to next line: {}",
+                    debug!("LineBreaker: fragment was unsplittable; deferring to next line: {:?}",
                            fragment);
                     self.work_list.push_front(fragment);
                     return false
                 }
                 Some(split_result) => {
-                    let split_fragment = |split: SplitInfo| {
+                    let split_fragment = |&:split: SplitInfo| {
                         let info = box ScannedTextFragmentInfo::new(split_result.text_run.clone(),
                                                                     split.range,
                                                                     Vec::new(),
@@ -667,7 +667,7 @@ pub struct InlineFragments {
 
 impl fmt::Show for InlineFragments {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.fragments)
+        write!(f, "{:?}", self.fragments)
     }
 }
 
@@ -968,7 +968,7 @@ impl Flow for InlineFlow {
 
         let mut computation = IntrinsicISizesContribution::new();
         for fragment in self.fragments.fragments.iter_mut() {
-            debug!("Flow: measuring {}", *fragment);
+            debug!("Flow: measuring {:?}", *fragment);
             computation.union_inline(&fragment.compute_intrinsic_inline_sizes().finish())
         }
         self.base.intrinsic_inline_sizes = computation.finish()
@@ -984,7 +984,7 @@ impl Flow for InlineFlow {
         // TODO: Combine this with `LineBreaker`'s walk in the fragment list, or put this into
         // `Fragment`.
 
-        debug!("InlineFlow::assign_inline_sizes: floats in: {}", self.base.floats);
+        debug!("InlineFlow::assign_inline_sizes: floats in: {:?}", self.base.floats);
 
         self.base.position.size.inline = self.base.block_container_inline_size;
 
@@ -1024,7 +1024,7 @@ impl Flow for InlineFlow {
         // element to determine its block-size for computing the line's own block-size.
         //
         // TODO(pcwalton): Cache the line scanner?
-        debug!("assign_block_size_inline: floats in: {}", self.base.floats);
+        debug!("assign_block_size_inline: floats in: {:?}", self.base.floats);
 
         // Assign the block-size for the inline fragments.
         let containing_block_block_size =
@@ -1256,7 +1256,7 @@ impl Flow for InlineFlow {
 
 impl fmt::Show for InlineFlow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} - {:x} - {}", self.class(), self.base.debug_id(), self.fragments)
+        write!(f, "{:?} - {:x} - {:?}", self.class(), self.base.debug_id(), self.fragments)
     }
 }
 

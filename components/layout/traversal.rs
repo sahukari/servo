@@ -74,7 +74,7 @@ fn take_task_local_bloom_filter(parent_node: Option<LayoutNode>, layout_context:
                 // Hey, the cached parent is our parent! We can reuse the bloom filter.
                 if old_node == layout_node_to_unsafe_layout_node(&parent) &&
                     old_generation == layout_context.shared.generation {
-                    debug!("[{}] Parent matches (={}). Reusing bloom filter.", tid(), old_node.val0());
+                    debug!("[{}] Parent matches (={}). Reusing bloom filter.", tid(), old_node.0);
                     bloom_filter.clone()
                 } else {
                     // Oh no. the cached parent is stale. I guess we need a new one. Reuse the existing
@@ -200,7 +200,7 @@ impl<'a> PreorderDomTraversal for RecalcStyleForNode<'a> {
 
         // Before running the children, we need to insert our nodes into the bloom
         // filter.
-        debug!("[{}] + {:X}", tid(), unsafe_layout_node.val0());
+        debug!("[{}] + {:X}", tid(), unsafe_layout_node.0);
         node.insert_into_bloom_filter(&mut *bf);
 
         // NB: flow construction updates the bloom filter on the way up.
@@ -258,7 +258,7 @@ impl<'a> PostorderDomTraversal for ConstructFlows<'a> {
 
         match node.layout_parent_node(self.layout_context.shared) {
             None => {
-                debug!("[{}] - {:X}, and deleting BF.", tid(), unsafe_layout_node.val0());
+                debug!("[{}] - {:X}, and deleting BF.", tid(), unsafe_layout_node.0);
                 // If this is the reflow root, eat the task-local bloom filter.
             }
             Some(parent) => {

@@ -83,7 +83,7 @@ pub trait Flow: fmt::Show + Sync {
 
     /// If this is a block flow, returns the underlying object. Fails otherwise.
     fn as_block<'a>(&'a mut self) -> &'a mut BlockFlow {
-        debug!("called as_block() on a flow of type {}", self.class());
+        debug!("called as_block() on a flow of type {:?}", self.class());
         panic!("called as_block() on a non-block flow")
     }
 
@@ -783,7 +783,7 @@ unsafe impl Sync for BaseFlow {}
 impl fmt::Show for BaseFlow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
-               "@ {}, CC {}, ADC {}",
+               "@ {:?}, CC {}, ADC {}",
                self.position,
                self.parallel.children_count.load(Ordering::SeqCst),
                self.abs_descendants.len())
@@ -955,7 +955,7 @@ impl BaseFlow {
             }
 
             if bounds.union(&paint_bounds.bounding_rect()) != bounds {
-                error!("DisplayList item {} outside of Flow overflow ({})", item, paint_bounds);
+                error!("DisplayList item {:?} outside of Flow overflow ({:?})", item, paint_bounds);
             }
         }
     }

@@ -1906,7 +1906,7 @@ impl Flow for BlockFlow {
 impl fmt::Show for BlockFlow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
-               "{} - {:x}: frag={} ({})",
+               "{:?} - {:x}: frag={:?} ({:?})",
                self.class(),
                self.base.debug_id(),
                self.fragment,
@@ -2561,7 +2561,7 @@ impl ISizeAndMarginsComputer for FloatNonReplaced {
         let available_inline_size_float = available_inline_size - margin_inline_start - margin_inline_end;
         let shrink_to_fit = block.get_shrink_to_fit_inline_size(available_inline_size_float);
         let inline_size = computed_inline_size.specified_or_default(shrink_to_fit);
-        debug!("assign_inline_sizes_float -- inline_size: {}", inline_size);
+        debug!("assign_inline_sizes_float -- inline_size: {:?}", inline_size);
         ISizeConstraintSolution::new(inline_size, margin_inline_start, margin_inline_end)
     }
 }
@@ -2581,7 +2581,7 @@ impl ISizeAndMarginsComputer for FloatReplaced {
             MaybeAuto::Specified(w) => w,
             MaybeAuto::Auto => panic!("FloatReplaced: inline_size should have been computed by now")
         };
-        debug!("assign_inline_sizes_float -- inline_size: {}", inline_size);
+        debug!("assign_inline_sizes_float -- inline_size: {:?}", inline_size);
         ISizeConstraintSolution::new(inline_size, margin_inline_start, margin_inline_end)
     }
 

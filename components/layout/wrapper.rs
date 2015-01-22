@@ -49,8 +49,8 @@ use script::dom::htmlelement::HTMLElementTypeId;
 use script::dom::htmlcanvaselement::{HTMLCanvasElement, LayoutHTMLCanvasElementHelpers};
 use script::dom::htmliframeelement::HTMLIFrameElement;
 use script::dom::htmlimageelement::LayoutHTMLImageElementHelpers;
-use script::dom::htmlinputelement::LayoutHTMLInputElementHelpers;
-use script::dom::htmltextareaelement::LayoutHTMLTextAreaElementHelpers;
+use script::dom::htmlinputelement::{HTMLInputElement, LayoutHTMLInputElementHelpers};
+use script::dom::htmltextareaelement::{HTMLTextAreaElement, LayoutHTMLTextAreaElementHelpers};
 use script::dom::node::{Node, NodeTypeId};
 use script::dom::node::{LayoutNodeHelpers, RawLayoutNodeHelpers, SharedLayoutData};
 use script::dom::node::{HAS_CHANGED, IS_DIRTY, HAS_DIRTY_SIBLINGS, HAS_DIRTY_DESCENDANTS};
@@ -213,15 +213,20 @@ impl<'ln> TLayoutNode for LayoutNode<'ln> {
 
     fn text(&self) -> String {
         unsafe {
-            if let Some(text) = TextCast::to_js(self.get_jsmanaged()) {
-                (*text.unsafe_get()).characterdata().data_for_layout().to_owned()
-            } else if let Some(input) = HTMLInputElementCast::to_js(self.get_jsmanaged()) {
-                input.get_value_for_layout()
-            } else if let Some(area) = HTMLTextAreaElementCast::to_js(self.get_jsmanaged()) {
-                area.get_value_for_layout()
-            } else {
-                panic!("not text!")
+            let text: Option<JS<Text>> = TextCast::to_js(self.get_jsmanaged());
+            if let Some(text) = text {
+                return (*text.unsafe_get()).characterdata().data_for_layout().to_owned();
             }
+            let input: Option<JS<HTMLInputElement>> = HTMLInputElementCast::to_js(self.get_jsmanaged());
+            if let Some(input) = input {
+                return input.get_value_for_layout();
+            }
+            let area: Option<JS<HTMLTextAreaElement>> = HTMLTextAreaElementCast::to_js(self.get_jsmanaged());
+            if let Some(area) = area {
+                area.get_value_for_layout()
+            }
+
+            panic!("not text!")
         }
     }
 }
@@ -246,7 +251,7 @@ impl<'ln> LayoutNode<'ln> {
     }
 
     fn debug_str(self) -> String {
-        format!("{}: changed={} dirty={} dirty_descendants={}",
+        format!("{:?}: changed={} dirty={} dirty_descendants={}",
                 self.type_id(), self.has_changed(), self.is_dirty(), self.has_dirty_descendants())
     }
 
@@ -536,7 +541,8 @@ impl<'le> TElement<'le> for LayoutElement<'le> {
 
     fn get_link(self) -> Option<&'le str> {
         // FIXME: This is HTML only.
-        match NodeCast::from_actual(self.element).type_id_for_layout() {
+        let node: &Node = NodeCast::from_actual(self.element);
+        match node.type_id_for_layout() {
             // http://www.whatwg.org/specs/web-apps/current-work/multipage/selectors.html#
             // selector-link
             NodeTypeId::Element(ElementTypeId::HTMLElement(HTMLElementTypeId::HTMLAnchorElement)) |
@@ -553,7 +559,8 @@ impl<'le> TElement<'le> for LayoutElement<'le> {
     #[inline]
     fn get_hover_state(self) -> bool {
         unsafe {
-            NodeCast::from_actual(self.element).get_hover_state_for_layout()
+            let node: &Node = NodeCast::from_actual(self.element);
+            node.get_hover_state_for_layout()
         }
     }
 
@@ -567,14 +574,16 @@ impl<'le> TElement<'le> for LayoutElement<'le> {
     #[inline]
     fn get_disabled_state(self) -> bool {
         unsafe {
-            NodeCast::from_actual(self.element).get_disabled_state_for_layout()
+            let node: &Node = NodeCast::from_actual(self.element);
+            node.get_disabled_state_for_layout()
         }
     }
 
     #[inline]
     fn get_enabled_state(self) -> bool {
         unsafe {
-            NodeCast::from_actual(self.element).get_enabled_state_for_layout()
+            let node: &Node = NodeCast::from_actual(self.element);
+            node.get_enabled_state_for_layout()
         }
     }
 
@@ -600,7 +609,7 @@ impl<'le> TElement<'le> for LayoutElement<'le> {
     }
 
     #[inline(always)]
-    fn each_class<F>(self, callback: F) where F: Fn(Atom) {
+    fn each_class<F>(self, callback: F) where F: Fn(&Atom) {
         unsafe {
             match self.element.get_classes_for_layout() {
                 None => {}
@@ -971,7 +980,8 @@ impl<'ln> ThreadSafeLayoutNode<'ln> {
     pub fn get_unsigned_integer_attribute(self, attribute: UnsignedIntegerAttribute)
                                           -> Option<u32> {
         unsafe {
-            match ElementCast::to_js(self.get_jsmanaged()) {
+            let elem: Option<JS<Element>> = ElementCast::to_js(self.get_jsmanaged());
+            match elem {
                 Some(element) => {
                     (*element.unsafe_get()).get_unsigned_integer_attribute_for_layout(attribute)
                 }
@@ -991,7 +1001,7 @@ impl<'ln> ThreadSafeLayoutNode<'ln> {
     pub fn set_restyle_damage(self, damage: RestyleDamage) {
         let mut layout_data_ref = self.mutate_layout_data();
         match &mut *layout_data_ref {
-            &Some(ref mut layout_data) => layout_data.data.restyle_damage = damage,
+            &mut Some(ref mut layout_data) => layout_data.data.restyle_damage = damage,
             _ => panic!("no layout data for this node"),
         }
     }
@@ -1010,7 +1020,7 @@ impl<'ln> ThreadSafeLayoutNode<'ln> {
     pub fn insert_flags(self, new_flags: LayoutDataFlags) {
         let mut layout_data_ref = self.mutate_layout_data();
         match &mut *layout_data_ref {
-            &Some(ref mut layout_data) => layout_data.data.flags.insert(new_flags),
+            &mut Some(ref mut layout_data) => layout_data.data.flags.insert(new_flags),
             _ => panic!("no layout data for this node"),
         }
     }
@@ -1019,7 +1029,7 @@ impl<'ln> ThreadSafeLayoutNode<'ln> {
     pub fn remove_flags(self, flags: LayoutDataFlags) {
         let mut layout_data_ref = self.mutate_layout_data();
         match &mut *layout_data_ref {
-            &Some(ref mut layout_data) => layout_data.data.flags.remove(flags),
+            &mut Some(ref mut layout_data) => layout_data.data.flags.remove(flags),
             _ => panic!("no layout data for this node"),
         }
     }

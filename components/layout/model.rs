@@ -256,7 +256,7 @@ pub struct IntrinsicISizes {
 
 impl fmt::Show for IntrinsicISizes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "min={}, pref={}", self.minimum_inline_size, self.preferred_inline_size)
+        write!(f, "min={:?}, pref={:?}", self.minimum_inline_size, self.preferred_inline_size)
     }
 }
 

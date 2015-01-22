@@ -176,6 +176,6 @@ impl Flow for TableCellFlow {
 
 impl fmt::Show for TableCellFlow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "TableCellFlow: {}", self.block_flow)
+        write!(f, "TableCellFlow: {:?}", self.block_flow)
     }
 }

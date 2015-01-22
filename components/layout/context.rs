@@ -80,6 +80,9 @@ pub struct SharedLayoutContext {
     pub generation: uint,
 }
 
+pub struct SharedLayoutContextWrapper(pub *const SharedLayoutContext);
+unsafe impl Send for SharedLayoutContextWrapper {}
+
 pub struct LayoutContext<'a> {
     pub shared: &'a SharedLayoutContext,
     cached_local_layout_context: *mut LocalLayoutContext,

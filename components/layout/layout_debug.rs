@@ -63,12 +63,12 @@ impl Scope {
     pub fn new(name: String) -> Scope {
         STATE_KEY.with(|ref r| {
             match &mut *r.borrow_mut() {
-                &Some(ref mut state) => {
+                &mut Some(ref mut state) => {
                     let flow_trace = json::encode(&flow::base(&*state.flow_root));
                     let data = box ScopeData::new(name.clone(), flow_trace);
                     state.scope_stack.push(data);
                 }
-                &None => {}
+                &mut None => {}
             }
         });
         Scope
@@ -80,13 +80,13 @@ impl Drop for Scope {
     fn drop(&mut self) {
         STATE_KEY.with(|ref r| {
             match &mut *r.borrow_mut() {
-                &Some(ref mut state) => {
+                &mut Some(ref mut state) => {
                     let mut current_scope = state.scope_stack.pop().unwrap();
                     current_scope.post = json::encode(&flow::base(&*state.flow_root));
                     let previous_scope = state.scope_stack.last_mut().unwrap();
                     previous_scope.children.push(current_scope);
                 }
-                &None => {}
+                &mut None => {}
             }
         });
     }

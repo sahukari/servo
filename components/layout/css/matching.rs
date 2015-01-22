@@ -70,7 +70,7 @@ impl ApplicableDeclarationsCacheEntry {
     }
 }*/
 
-impl<H: Hasher> Hash<H> for ApplicableDeclarationsCacheEntry {
+impl<H: Hasher+Writer> Hash<H> for ApplicableDeclarationsCacheEntry {
     fn hash(&self, state: &mut H) {
         let tmp = ApplicableDeclarationsCacheQuery::new(self.declarations.as_slice());
         tmp.hash(state);
@@ -104,7 +104,7 @@ impl<'a> ApplicableDeclarationsCacheQuery<'a> {
 }*/
 
 
-impl<'a, H: Hasher> Hash<H> for ApplicableDeclarationsCacheQuery<'a> {
+impl<'a, H: Hasher+Writer> Hash<H> for ApplicableDeclarationsCacheQuery<'a> {
     fn hash(&self, state: &mut H) {
         for declaration in self.declarations.iter() {
             let ptr: uint = unsafe {
@@ -608,8 +608,8 @@ impl<'ln> MatchMethods for LayoutNode<'ln> {
 
         let mut layout_data_ref = self.mutate_layout_data();
         match &mut *layout_data_ref {
-            &None => panic!("no layout data"),
-            &Some(ref mut layout_data) => {
+            &mut None => panic!("no layout data"),
+            &mut Some(ref mut layout_data) => {
                 match self.type_id() {
                     Some(NodeTypeId::Text) => {
                         // Text nodes get a copy of the parent style. This ensures

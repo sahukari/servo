@@ -53,6 +53,7 @@ use style::computed_values::{background_attachment, background_repeat, border_st
 use style::computed_values::{position, visibility};
 use style::style_structs::Border;
 use style::{ComputedValues, RGBA};
+use std::num::ToPrimitive;
 use std::sync::Arc;
 use std::sync::mpsc::channel;
 use url::Url;
@@ -690,7 +691,7 @@ impl FragmentDisplayListBuilding for Fragment {
                                               relative_containing_block_size,
                                               CoordinateSystem::Self);
 
-        debug!("Fragment::build_display_list at rel={}, abs={}, dirty={}, flow origin={}: {}",
+        debug!("Fragment::build_display_list at rel={:?}, abs={:?}, dirty={:?}, flow origin={:?}: {:?}",
                self.border_box,
                stacking_relative_border_box,
                layout_context.shared.dirty,
@@ -880,8 +881,8 @@ impl FragmentDisplayListBuilding for Fragment {
                 let (sender, receiver) = channel::<Vec<u8>>();
                 let canvas_data = match canvas_fragment_info.renderer {
                     Some(ref renderer) =>  {
-                        renderer.lock().send(SendPixelContents(sender));
-                        receiver.recv()
+                        renderer.lock().unwrap().send(SendPixelContents(sender));
+                        receiver.recv().unwrap()
                     },
                     None => repeat(0xFFu8).take(width * height * 4).collect(),
                 };
@@ -917,7 +918,7 @@ impl FragmentDisplayListBuilding for Fragment {
                                Size2D(geometry::to_frac_px(content_size.width) as f32,
                                       geometry::to_frac_px(content_size.height) as f32));
 
-        debug!("finalizing position and size of iframe for {},{}",
+        debug!("finalizing position and size of iframe for {:?},{:?}",
                iframe_fragment.pipeline_id,
                iframe_fragment.subpage_id);
         let ConstellationChan(ref chan) = layout_context.shared.constellation_chan;

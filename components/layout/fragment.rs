@@ -39,6 +39,7 @@ use servo_util::smallvec::SmallVec;
 use servo_util::str::is_whitespace;
 use std::cmp::{max, min};
 use std::fmt;
+use std::num::ToPrimitive;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::Sender;
@@ -747,7 +748,7 @@ impl Fragment {
     /// if called on any other type of fragment.
     pub fn save_new_line_pos(&mut self) {
         match &mut self.specific {
-            &SpecificFragmentInfo::ScannedText(ref mut info) => {
+            &mut SpecificFragmentInfo::ScannedText(ref mut info) => {
                 if !info.new_line_pos.is_empty() {
                     info.original_new_line_pos = Some(info.new_line_pos.clone());
                 }
@@ -758,7 +759,7 @@ impl Fragment {
 
     pub fn restore_new_line_pos(&mut self) {
         match &mut self.specific {
-            &SpecificFragmentInfo::ScannedText(ref mut info) => {
+            &mut SpecificFragmentInfo::ScannedText(ref mut info) => {
                 match info.original_new_line_pos.take() {
                     None => {}
                     Some(new_line_pos) => info.new_line_pos = new_line_pos,
@@ -1282,7 +1283,7 @@ impl Fragment {
             }
             SpecificFragmentInfo::ScannedText(ref text_fragment_info) => {
                 let mut new_line_pos = text_fragment_info.new_line_pos.clone();
-                let cur_new_line_pos = new_line_pos.remove(0).unwrap();
+                let cur_new_line_pos = new_line_pos.remove(0);
 
                 let inline_start_range = Range::new(text_fragment_info.range.begin(),
                                                     cur_new_line_pos);
@@ -1372,15 +1373,15 @@ impl Fragment {
         let mut inline_start_range = Range::new(text_fragment_info.range.begin(), CharIndex(0));
         let mut inline_end_range = None;
 
-        debug!("calculate_split_position: splitting text fragment (strlen={}, range={}, \
-                max_inline_size={})",
+        debug!("calculate_split_position: splitting text fragment (strlen={}, range={:?}, \
+                max_inline_size={:?})",
                text_fragment_info.run.text.len(),
                text_fragment_info.range,
                max_inline_size);
 
         for slice in slice_iterator {
-            debug!("calculate_split_position: considering slice (offset={}, slice range={}, \
-                    remaining_inline_size={})",
+            debug!("calculate_split_position: considering slice (offset={:?}, slice range={:?}, \
+                    remaining_inline_size={:?})",
                    slice.offset,
                    slice.range,
                    remaining_inline_size);
@@ -1412,7 +1413,7 @@ impl Fragment {
                 let mut inline_end = slice.text_run_range();
                 inline_end.extend_to(text_fragment_info.range.end());
                 inline_end_range = Some(inline_end);
-                debug!("calculate_split_position: splitting remainder with inline-end range={}",
+                debug!("calculate_split_position: splitting remainder with inline-end range={:?}",
                        inline_end);
             }
 
@@ -1820,9 +1821,9 @@ impl Fragment {
 impl fmt::Show for Fragment {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         try!(write!(f, "({} {} ", self.debug_id(), self.specific.get_type()));
-        try!(write!(f, "bp {}", self.border_padding));
+        try!(write!(f, "bp {:?}", self.border_padding));
         try!(write!(f, " "));
-        try!(write!(f, "m {}", self.margin));
+        try!(write!(f, "m {:?}", self.margin));
         write!(f, ")")
     }
 }
