@@ -16,7 +16,7 @@ use servo_util::smallvec::{SmallVec, SmallVec16};
 use servo_util::arc_ptr_eq;
 use std::borrow::ToOwned;
 use std::mem;
-use std::hash::{Hash, Hasher, sip};
+use std::hash::{Hash, Hasher, Writer, sip};
 use std::slice::Iter;
 use string_cache::{Atom, Namespace};
 use style::{mod, PseudoElement, ComputedValues, DeclarationBlock, Stylist, TElement, TNode};

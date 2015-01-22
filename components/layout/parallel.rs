@@ -151,7 +151,7 @@ trait ParallelPostorderDomTraversal : PostorderDomTraversal {
             // Perform the appropriate traversal.
             self.process(node);
 
-            let shared_layout_context = unsafe { &**(proxy.user_data().0) };
+            let shared_layout_context = unsafe { &*(proxy.user_data().0) };
             let layout_context = LayoutContext::new(shared_layout_context);
 
             let parent =
@@ -344,7 +344,7 @@ impl <'a> ParallelPreorderDomTraversal for RecalcStyleForNode<'a> {
 
 fn recalc_style(unsafe_node: UnsafeLayoutNode,
                 proxy: &mut WorkerProxy<SharedLayoutContextWrapper, UnsafeLayoutNode>) {
-    let shared_layout_context = unsafe { &**(proxy.user_data().0) };
+    let shared_layout_context = unsafe { &*(proxy.user_data().0) };
     let layout_context = LayoutContext::new(shared_layout_context);
     let recalc_style_for_node_traversal = RecalcStyleForNode {
         layout_context: &layout_context,
@@ -354,7 +354,7 @@ fn recalc_style(unsafe_node: UnsafeLayoutNode,
 
 fn construct_flows(unsafe_node: UnsafeLayoutNode,
                    proxy: &mut WorkerProxy<SharedLayoutContextWrapper, UnsafeLayoutNode>) {
-    let shared_layout_context = unsafe { &**(proxy.user_data().0) };
+    let shared_layout_context = unsafe { &*(proxy.user_data().0) };
     let layout_context = LayoutContext::new(shared_layout_context);
     let construct_flows_traversal = ConstructFlows {
         layout_context: &layout_context,
@@ -364,7 +364,7 @@ fn construct_flows(unsafe_node: UnsafeLayoutNode,
 
 fn assign_inline_sizes(unsafe_flow: UnsafeFlow,
                        proxy: &mut WorkerProxy<SharedLayoutContextWrapper,UnsafeFlow>) {
-    let shared_layout_context = unsafe { &**(proxy.user_data().0) };
+    let shared_layout_context = unsafe { &*(proxy.user_data().0) };
     let layout_context = LayoutContext::new(shared_layout_context);
     let assign_inline_sizes_traversal = AssignISizes {
         layout_context: &layout_context,
@@ -374,7 +374,7 @@ fn assign_inline_sizes(unsafe_flow: UnsafeFlow,
 
 fn assign_block_sizes_and_store_overflow(unsafe_flow: UnsafeFlow,
                                          proxy: &mut WorkerProxy<SharedLayoutContextWrapper,UnsafeFlow>) {
-    let shared_layout_context = unsafe { &**(proxy.user_data().0) };
+    let shared_layout_context = unsafe { &*(proxy.user_data().0) };
     let layout_context = LayoutContext::new(shared_layout_context);
     let assign_block_sizes_traversal = AssignBSizesAndStoreOverflow {
         layout_context: &layout_context,
@@ -384,7 +384,7 @@ fn assign_block_sizes_and_store_overflow(unsafe_flow: UnsafeFlow,
 
 fn compute_absolute_positions(unsafe_flow: UnsafeFlow,
                               proxy: &mut WorkerProxy<SharedLayoutContextWrapper, UnsafeFlow>) {
-    let shared_layout_context = unsafe { &**(proxy.user_data().0) };
+    let shared_layout_context = unsafe { &*(proxy.user_data().0) };
     let layout_context = LayoutContext::new(shared_layout_context);
     let compute_absolute_positions_traversal = ComputeAbsolutePositions {
         layout_context: &layout_context,
@@ -394,7 +394,7 @@ fn compute_absolute_positions(unsafe_flow: UnsafeFlow,
 
 fn build_display_list(unsafe_flow: UnsafeFlow,
                       proxy: &mut WorkerProxy<SharedLayoutContextWrapper, UnsafeFlow>) {
-    let shared_layout_context = unsafe { &**(proxy.user_data().0) };
+    let shared_layout_context = unsafe { &*(proxy.user_data().0) };
     let layout_context = LayoutContext::new(shared_layout_context);
 
     let build_display_list_traversal = BuildDisplayList {
@@ -430,7 +430,7 @@ pub fn traverse_flow_tree_preorder(root: &mut FlowRef,
         root.traverse_postorder(&bubble_inline_sizes);
     }
 
-    queue.data = shared_layout_context as *const _;
+    queue.data = SharedLayoutContextWrapper(shared_layout_context as *const _);
 
     profile(TimeProfilerCategory::LayoutParallelWarmup, profiler_metadata,
             time_profiler_chan, || {
