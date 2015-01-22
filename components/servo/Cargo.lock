@@ -355,7 +355,7 @@ dependencies = [
 [[package]]
 name = "glutin"
 version = "0.0.4-pre"
-source = "git+https://github.com/tomaka/glutin#13be9b2598c1fdce7af61ab05933ba687c95e64c"
+source = "git+https://github.com/tomaka/glutin#1d6b863cd454839b8e3cf1e296cbf8f31fb70029"
 dependencies = [
  "android_glue 0.0.1 (git+https://github.com/tomaka/android-rs-glue)",
  "cocoa 0.1.1 (git+https://github.com/servo/rust-cocoa)",
