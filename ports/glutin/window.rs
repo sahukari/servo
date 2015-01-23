@@ -642,6 +642,9 @@ struct GlutinCompositorProxy {
     window_proxy: Option<glutin::WindowProxy>,
 }
 
+// TODO: Should this be implemented here or upstream in glutin::WindowProxy?
+unsafe impl Send for GlutinCompositorProxy {}
+
 impl CompositorProxy for GlutinCompositorProxy {
     fn send(&mut self, msg: compositor_task::Msg) {
         // Send a message and kick the OS event loop awake.
