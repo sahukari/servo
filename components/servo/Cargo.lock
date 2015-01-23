@@ -3,6 +3,7 @@ name = "servo"
 version = "0.0.1"
 dependencies = [
  "compositing 0.0.1",
+ "devtools 0.0.1",
  "gfx 0.0.1",
  "glfw_app 0.0.1",
  "glutin_app 0.0.1",

@@ -51,6 +51,9 @@ path = "../layout"
 [dependencies.gfx]
 path = "../gfx"
 
+[dependencies.devtools]
+path = "../devtools"
+
 [dependencies.glfw_app]
 path = "../../ports/glfw"
 optional = true

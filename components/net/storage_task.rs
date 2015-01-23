@@ -40,7 +40,7 @@ pub enum StorageTaskMsg {
 pub type StorageTask = Sender<StorageTaskMsg>;
 
 pub trait StorageTaskFactory {
-    fn new() -> StorageTask;
+    fn new() -> Self;
 }
 
 impl StorageTaskFactory for StorageTask {
