@@ -11,12 +11,12 @@ use wrapper::{LayoutElement, LayoutNode, TLayoutNode};
 
 use script::dom::node::NodeTypeId;
 use servo_util::bloom::BloomFilter;
-use servo_util::cache::{Cache, LRUCache, SimpleHashCache};
+use servo_util::cache::{LRUCache, SimpleHashCache};
 use servo_util::smallvec::{SmallVec, SmallVec16};
 use servo_util::arc_ptr_eq;
 use std::borrow::ToOwned;
 use std::mem;
-use std::hash::{Hash, Hasher, Writer, sip};
+use std::hash::{Hash, Hasher, Writer};
 use std::slice::Iter;
 use string_cache::{Atom, Namespace};
 use style::{mod, PseudoElement, ComputedValues, DeclarationBlock, Stylist, TElement, TNode};
@@ -63,12 +63,13 @@ impl ApplicableDeclarationsCacheEntry {
     }
 }
 
-/*impl PartialEq for ApplicableDeclarationsCacheEntry {
+impl PartialEq for ApplicableDeclarationsCacheEntry {
     fn eq(&self, other: &ApplicableDeclarationsCacheEntry) -> bool {
         let this_as_query = ApplicableDeclarationsCacheQuery::new(self.declarations.as_slice());
-        this_as_query.equiv(other)
+        this_as_query.eq(other)
     }
-}*/
+}
+impl Eq for ApplicableDeclarationsCacheEntry {}
 
 impl<H: Hasher+Writer> Hash<H> for ApplicableDeclarationsCacheEntry {
     fn hash(&self, state: &mut H) {
@@ -89,8 +90,8 @@ impl<'a> ApplicableDeclarationsCacheQuery<'a> {
     }
 }
 
-/*impl<'a> Equiv<ApplicableDeclarationsCacheEntry> for ApplicableDeclarationsCacheQuery<'a> {
-    fn equiv(&self, other: &ApplicableDeclarationsCacheEntry) -> bool {
+impl<'a> PartialEq for ApplicableDeclarationsCacheQuery<'a> {
+    fn eq(&self, other: &ApplicableDeclarationsCacheQuery<'a>) -> bool {
         if self.declarations.len() != other.declarations.len() {
             return false
         }
@@ -101,8 +102,15 @@ impl<'a> ApplicableDeclarationsCacheQuery<'a> {
         }
         return true
     }
-}*/
+}
+impl<'a> Eq for ApplicableDeclarationsCacheQuery<'a> {}
 
+impl<'a> PartialEq<ApplicableDeclarationsCacheEntry> for ApplicableDeclarationsCacheQuery<'a> {
+    fn eq(&self, other: &ApplicableDeclarationsCacheEntry) -> bool {
+        let other_as_query = ApplicableDeclarationsCacheQuery::new(other.declarations.as_slice());
+        self.eq(&other_as_query)
+    }
+}
 
 impl<'a, H: Hasher+Writer> Hash<H> for ApplicableDeclarationsCacheQuery<'a> {
     fn hash(&self, state: &mut H) {
@@ -129,7 +137,7 @@ impl ApplicableDeclarationsCache {
     }
 
     fn find(&self, declarations: &[DeclarationBlock]) -> Option<Arc<ComputedValues>> {
-        match self.cache.find_equiv(&ApplicableDeclarationsCacheQuery::new(declarations)) {
+        match self.cache.find(&ApplicableDeclarationsCacheQuery::new(declarations)) {
             None => None,
             Some(ref values) => Some((*values).clone()),
         }

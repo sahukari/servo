@@ -145,11 +145,11 @@ impl TableWrapperFlow {
         // Compute all the guesses for the column sizes, and sum them.
         let mut total_guess = AutoLayoutCandidateGuess::new();
         let guesses: Vec<AutoLayoutCandidateGuess> =
-            self.column_intrinsic_inline_sizes.iter().map(|column_intrinsic_inline_size| {
+            self.column_intrinsic_inline_sizes.iter().map(|&mut:column_intrinsic_inline_size| {
                 let guess = AutoLayoutCandidateGuess::from_column_intrinsic_inline_size(
                     column_intrinsic_inline_size,
                     available_inline_size);
-                total_guess = total_guess + guess;
+                total_guess = &total_guess + &guess;
                 guess
             }).collect();
 
@@ -483,10 +483,10 @@ impl AutoLayoutCandidateGuess {
     }
 }
 
-impl Add for AutoLayoutCandidateGuess {
+impl<'a> Add for &'a AutoLayoutCandidateGuess {
     type Output = AutoLayoutCandidateGuess;
     #[inline]
-    fn add(self, other: AutoLayoutCandidateGuess) -> AutoLayoutCandidateGuess {
+    fn add(self, other: &AutoLayoutCandidateGuess) -> AutoLayoutCandidateGuess {
         AutoLayoutCandidateGuess {
             minimum_guess: self.minimum_guess + other.minimum_guess,
             minimum_percentage_guess:

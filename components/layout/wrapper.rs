@@ -391,7 +391,7 @@ impl<'ln> TNode<'ln, LayoutElement<'ln>> for LayoutNode<'ln> {
         self.node_is_document()
     }
 
-    fn match_attr<F>(self, attr: &AttrSelector, test: F) -> bool where F: FnOnce(&str) -> bool {
+    fn match_attr<F>(self, attr: &AttrSelector, test: F) -> bool where F: Fn(&str) -> bool {
         assert!(self.is_element());
         let name = if self.is_html_element_in_html_document() {
             &attr.lower_name

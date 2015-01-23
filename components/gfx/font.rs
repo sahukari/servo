@@ -8,7 +8,7 @@ use std::mem;
 use std::slice;
 use std::rc::Rc;
 use std::cell::RefCell;
-use servo_util::cache::{Cache, HashCache};
+use servo_util::cache::HashCache;
 use servo_util::smallvec::{SmallVec, SmallVec8};
 use style::computed_values::{font_variant, font_weight};
 use style::style_structs::Font as FontStyle;

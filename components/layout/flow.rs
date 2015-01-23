@@ -205,10 +205,10 @@ pub trait Flow: fmt::Show + Sync {
     fn assign_block_size_for_inorder_child_if_necessary<'a>(&mut self,
                                                             layout_context: &'a LayoutContext<'a>)
                                                             -> bool {
-        let impacted = unsafe { base(mem::transmute(self)).flags.impacted_by_floats() };
+        let impacted = base(self).flags.impacted_by_floats();
         if impacted {
             self.assign_block_size(layout_context);
-            mut_base(mem::transmute(self)).restyle_damage.remove(REFLOW_OUT_OF_FLOW | REFLOW);
+            mut_base(self).restyle_damage.remove(REFLOW_OUT_OF_FLOW | REFLOW);
         }
         impacted
     }
@@ -260,7 +260,7 @@ pub trait Flow: fmt::Show + Sync {
 
     fn is_positioned(&self) -> bool {
         unsafe {
-            self.is_relatively_positioned() || base(mem::transmute(self)).flags.contains(IS_ABSOLUTELY_POSITIONED)
+            self.is_relatively_positioned() || base(self).flags.contains(IS_ABSOLUTELY_POSITIONED)
         }
     }
 
@@ -298,7 +298,8 @@ pub trait Flow: fmt::Show + Sync {
     /// Returns a layer ID for the given fragment.
     fn layer_id(&self, fragment_id: uint) -> LayerId {
         unsafe {
-            let pointer: uint = mem::transmute(self);
+            let obj = mem::transmute::<&&Self, &raw::TraitObject>(&self);
+            let pointer: uint = mem::transmute(obj.data);
             LayerId(pointer, fragment_id)
         }
     }
@@ -311,9 +312,9 @@ pub trait Flow: fmt::Show + Sync {
 // Base access
 
 #[inline(always)]
-pub fn base<'a>(this: &'a Flow) -> &'a BaseFlow {
+pub fn base<'a, T: ?Sized + Flow>(this: &'a T) -> &'a BaseFlow {
     unsafe {
-        let obj = mem::transmute::<&'a Flow, raw::TraitObject>(this);
+        let obj = mem::transmute::<&&'a T, &'a raw::TraitObject>(&this);
         mem::transmute::<*mut (), &'a BaseFlow>(obj.data)
     }
 }
@@ -324,9 +325,9 @@ pub fn imm_child_iter<'a>(flow: &'a Flow) -> FlowListIterator<'a> {
 }
 
 #[inline(always)]
-pub fn mut_base<'a>(this: &'a mut Flow) -> &'a mut BaseFlow {
+pub fn mut_base<'a, T: ?Sized + Flow>(this: &'a mut T) -> &'a mut BaseFlow {
     unsafe {
-        let obj = mem::transmute::<&'a mut Flow, raw::TraitObject>(this);
+        let obj = mem::transmute::<&&'a mut T, &'a raw::TraitObject>(&this);
         mem::transmute::<*mut (), &'a mut BaseFlow>(obj.data)
     }
 }
@@ -1131,7 +1132,7 @@ impl<'a> ImmutableFlowUtils for &'a (Flow + 'a) {
             indent.push_str("| ")
         }
 
-        println!("{}+ {:?}", indent, self);
+        //println!("{}+ {:?}", indent, self);
 
         for kid in imm_child_iter(self) {
             kid.dump_with_level(level + 1)

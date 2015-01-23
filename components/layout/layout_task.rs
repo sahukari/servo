@@ -33,7 +33,7 @@ use gfx::paint_task::Msg as PaintMsg;
 use layout_traits::{LayoutControlMsg, LayoutTaskFactory};
 use log;
 use script::dom::bindings::js::JS;
-use script::dom::node::{LayoutDataRef, Node, NodeTypeId};
+use script::dom::node::{LayoutDataRef, LayoutData, Node, NodeTypeId};
 use script::dom::element::ElementTypeId;
 use script::dom::htmlelement::HTMLElementTypeId;
 use script::layout_interface::{ContentBoxResponse, ContentBoxesResponse};
@@ -158,7 +158,7 @@ impl ImageResponder<UntrustedNodeAddress> for LayoutImageResponder {
         let id = self.id.clone();
         let script_chan = self.script_chan.clone();
         box move |&:_, node_address| {
-            let ScriptControlChan(chan) = script_chan;
+            let ScriptControlChan(ref chan) = script_chan;
             debug!("Dirtying {:x}", node_address.0 as uint);
             let mut nodes = SmallVec1::new();
             nodes.vec_push(node_address);
@@ -919,8 +919,11 @@ impl LayoutTask {
     /// because it contains local managed pointers.
     unsafe fn handle_reap_layout_data(layout_data: LayoutDataRef) {
         let mut layout_data_ref = layout_data.borrow_mut();
-        let _: Option<LayoutDataWrapper> = mem::transmute(
-            mem::replace(&mut *layout_data_ref, None));
+        let layout_data = mem::replace(&mut *layout_data_ref, None);
+        let layout_data_ptr: *const Option<LayoutDataWrapper> =
+            mem::transmute::<*const Option<LayoutData>, _>(&layout_data);
+        mem::forget(layout_data);
+        let _ = *layout_data_ptr;
     }
 
     /// Returns profiling information which is passed to the time profiler.
