@@ -32,7 +32,7 @@ extern crate serialize;
 extern crate time;
 extern crate canvas;
 extern crate script_traits;
-#[plugin] #[macro_use]
+#[no_link] #[plugin] #[macro_use]
 extern crate "plugins" as servo_plugins;
 extern crate "net" as servo_net;
 extern crate "util" as servo_util;
@@ -42,7 +42,7 @@ extern crate "msg" as servo_msg;
 extern crate url;
 extern crate uuid;
 extern crate string_cache;
-#[plugin] #[macro_use]
+#[no_link] #[macro_use] #[plugin]
 extern crate string_cache_macros;
 
 pub mod cors;

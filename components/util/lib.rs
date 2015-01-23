@@ -33,7 +33,7 @@ extern crate string_cache;
 extern crate unicode;
 extern crate url;
 
-#[no_link] #[plugin]
+#[no_link] #[macro_use] #[plugin]
 extern crate string_cache_macros;
 extern crate lazy_static;
 

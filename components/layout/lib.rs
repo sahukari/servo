@@ -24,14 +24,14 @@ extern crate serialize;
 extern crate png;
 extern crate style;
 #[macro_use]
-#[plugin]
+#[no_link] #[plugin]
 extern crate "plugins" as servo_plugins;
 extern crate "net" as servo_net;
 extern crate "msg" as servo_msg;
 #[macro_use]
 extern crate "util" as servo_util;
 
-#[plugin]
+#[no_link] #[macro_use] #[plugin]
 extern crate string_cache_macros;
 extern crate string_cache;
 
