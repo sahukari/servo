@@ -259,9 +259,7 @@ pub trait Flow: fmt::Show + Sync {
     }
 
     fn is_positioned(&self) -> bool {
-        unsafe {
-            self.is_relatively_positioned() || base(self).flags.contains(IS_ABSOLUTELY_POSITIONED)
-        }
+        self.is_relatively_positioned() || base(self).flags.contains(IS_ABSOLUTELY_POSITIONED)
     }
 
     fn is_relatively_positioned(&self) -> bool {

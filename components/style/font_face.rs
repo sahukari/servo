@@ -13,14 +13,14 @@ use parser::ParserContext;
 
 
 pub fn iter_font_face_rules_inner<F>(rules: &[CSSRule], device: &Device,
-                                     callback: F) where F: Fn(&str, &Source) {
+                                     callback: &F) where F: Fn(&str, &Source) {
     for rule in rules.iter() {
         match *rule {
             CSSRule::Style(..) |
             CSSRule::Charset(..) |
             CSSRule::Namespace(..) => {},
             CSSRule::Media(ref rule) => if rule.media_queries.evaluate(device) {
-                iter_font_face_rules_inner(rule.rules.as_slice(), device, |f, s| callback(f, s))
+                iter_font_face_rules_inner(rule.rules.as_slice(), device, callback)
             },
             CSSRule::FontFace(ref rule) => {
                 for source in rule.sources.iter() {

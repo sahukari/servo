@@ -609,7 +609,7 @@ impl<'le> TElement<'le> for LayoutElement<'le> {
     }
 
     #[inline(always)]
-    fn each_class<F>(self, callback: F) where F: Fn(&Atom) {
+    fn each_class<F>(self, mut callback: F) where F: FnMut(&Atom) {
         unsafe {
             match self.element.get_classes_for_layout() {
                 None => {}

@@ -253,7 +253,7 @@ pub fn iter_stylesheet_style_rules<F>(stylesheet: &Stylesheet, device: &media_qu
 
 #[inline]
 pub fn iter_font_face_rules<F>(stylesheet: &Stylesheet, device: &Device,
-                               callback: F) where F: Fn(&str, &Source) {
+                               callback: &F) where F: Fn(&str, &Source) {
     iter_font_face_rules_inner(stylesheet.rules.as_slice(), device, callback)
 }
 
